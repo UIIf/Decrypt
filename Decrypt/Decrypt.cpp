@@ -77,7 +77,7 @@ public:
     }
 };
 
-LangParams lg[] = { LangParams(), LangParams(0.065, "abcdefghigklmnopqrstuvwxyz", "ABCDEFGHIGKLMNOPQRSTUVWXYZ", "etaonris","e"), LangParams(0.07, "абвгдежзийклмнопрстуфхцчшщъыьэюя","АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ","ао", "а") };
+LangParams lg[] = { LangParams(), LangParams(0.065, "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIGKLMNOPQRSTUVWXYZ", "etaonris","e"), LangParams(0.07, "абвгдежзийклмнопрстуфхцчшщъыьэюя","АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ","ао", "а") };
 
 //-----------------------------------------------------------------
 //Work with languages end
@@ -163,10 +163,10 @@ private:
             }
             if (NumInLowAlp > -1 || NumInUpAlp > -1) {
                 if (NumInLowAlp > -1) {
-                    to_ret += low[(key + NumInLowAlp) % alpCount];
+                    to_ret += low[(NumInLowAlp - key) < 0? alpCount  + (NumInLowAlp - key) : NumInLowAlp - key];
                 }
                 if (NumInUpAlp > -1) {
-                    to_ret += up[(key + NumInUpAlp) % alpCount];
+                    to_ret += up[(NumInUpAlp - key) < 0 ? alpCount + (NumInUpAlp - key) : NumInUpAlp - key];
                 }
             }
             else {
@@ -294,7 +294,7 @@ vector<double> FindAllIndex(string crypted) {
 
 int main()
 {
-    string txt = "JGRMQOYGHMVBJWRWQFPWHGFFDQGFPFZRKBEEBJIZQQOCIBZKLFAFGQVFZFWWE";
+    string txt = "wcdsvqdzgqilovccildiao";
     vector<double> r = FindAllIndex(txt);
     lang cur = LNGDetector(txt);
     // you can loop k higher to see more color choices
