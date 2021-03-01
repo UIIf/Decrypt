@@ -77,7 +77,7 @@ public:
     }
 };
 
-LangParams lg[] = { LangParams(), LangParams(0.065, "abcdefghigklmnopqrstuvwxyz", "ABCDEFGHIGKLMNOPQRSTUVWXYZ", "eo","e"), LangParams(0.07, "абвгдежзийклмнопрстуфхцчшщъыьэюя","АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ","ао", "а") };
+LangParams lg[] = { LangParams(), LangParams(0.065, "abcdefghigklmnopqrstuvwxyz", "ABCDEFGHIGKLMNOPQRSTUVWXYZ", "etaonris","e"), LangParams(0.07, "абвгдежзийклмнопрстуфхцчшщъыьэюя","АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ","ао", "а") };
 
 //-----------------------------------------------------------------
 //Work with languages end
@@ -199,10 +199,27 @@ public:
         }
     }
 
+    void KeyChange(int i) {
+        key = i;
+        while (key >= lg[language].lower.size()) {
+            key -= lg[language].lower.size();
+        }
+        Encrypt();
+    }
+
     void CesarNextStep() {
-        curPopChar++;
         if (++curPopChar >= lg[language].MostPopI.size()) {
             curPopChar = 0;
+        }
+        key = lg[language].MostPopI[curPopChar] - IofMaxChar;
+        if (key < 0) {
+            key += lg[language].lower.size();
+        }
+        Encrypt();
+    }
+    void CesarPrevStep() {
+        if (--curPopChar < 0) {
+            curPopChar = lg[language].MostPopI.size()-1;
         }
         key = lg[language].MostPopI[curPopChar] - IofMaxChar;
         if (key < 0) {
@@ -213,7 +230,7 @@ public:
     
 };
 
-vector<SubString> StringFraction(string input, int count) {
+vector<SubString> StringFraction(string input, int count, bool light = 1) {
     string tmp;
     vector<SubString> res;
     for (int i = 0; i < count; i++) {
@@ -223,7 +240,7 @@ vector<SubString> StringFraction(string input, int count) {
             tmp += input[i + j * count];
         }
         if (tmp.length() > 0) {
-            res.push_back(SubString(tmp));
+            res.push_back(SubString(tmp,light));
         }
         else break;
     }
@@ -232,12 +249,13 @@ vector<SubString> StringFraction(string input, int count) {
 
 string FractedStr(vector<SubString> VecSub) {
     string to_ret = "";
-    for (int i = 0; i < VecSub[0].to_ret.length(); i++) {
-        for (int j = 0; j < VecSub.size(); j++) {
-            if (VecSub[j].to_ret.length() > i) {
-                to_ret += VecSub[j].to_ret[i];
-            }
-        }
+    int len = 0;
+    int size = VecSub.size();
+    for (int i = 0; i < size; i++) {
+        len += VecSub[i].to_ret.length();
+    }
+    for (int i = 0; i < len; i++) {
+        to_ret += VecSub[i % size].to_ret[i / size];
     }
     return to_ret;
 }
@@ -279,7 +297,6 @@ int main()
     string txt = "JGRMQOYGHMVBJWRWQFPWHGFFDQGFPFZRKBEEBJIZQQOCIBZKLFAFGQVFZFWWE";
     vector<double> r = FindAllIndex(txt);
     lang cur = LNGDetector(txt);
-    vector<SubString> Sub;
     // you can loop k higher to see more color choices
     //for (int k = 1; k < 255; k++)
     //{
@@ -288,15 +305,27 @@ int main()
     //    cout << k << " I want to be nice today!" << endl;
     //}
     bool ProgWork = true;
+    int chosenV = 0;
     int chosenH = 0;
     bool change = 1;
-    /*vector<SubString> VecSub = StringFraction(txt,chosenH + 1);
-    string decoded = FractedStr(Sub);*/
+    vector<SubString> VecSub = StringFraction(txt,chosenV + 1,0);
+    string decoded;
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     while (ProgWork) {
         if (change) {
             system("cls");
-            //cout << decoded << endl;
+            decoded = FractedStr(VecSub);
+            cout << decoded << endl<<endl<<endl<<"KeyWord:\n";
+            for (int i = 0; i < VecSub.size(); i++) {
+                cout << lg[cur].lower[VecSub[i].key];
+                //cout << VecSub[i].key<<" ";
+            }
+            cout << endl;
+            for (int i = 0; i < chosenH; i++) {
+                cout << ' ';
+            }
+            cout << '^';
+            cout << endl << endl << endl;
             for (int i = 0; i < r.size(); i++) {
                 SetConsoleTextAttribute(hConsole, 14);
                 if (r[i] > lg[cur].MI - 0.006 && r[i] < lg[cur].MI + 0.006) {
@@ -311,7 +340,7 @@ int main()
                 if (r[i] < lg[cur].MI - 0.01 || r[i] > lg[cur].MI + 0.01) {
                     SetConsoleTextAttribute(hConsole, 12);
                 }
-                if (chosenH == i) {
+                if (chosenV == i) {
                     cout << ">";
                 }
                 else {
@@ -320,29 +349,68 @@ int main()
                 cout << "Key len = " << i + 1 << " Match index = " << r[i] << endl;
             }
             SetConsoleTextAttribute(hConsole, 7);
+            
+            cout << endl << endl << endl << "Directions - Arrows\nNext auto - Enter\nPrev auto - alt\nClose - Esc";
+
             change = 0;
         }
 
         //0x41 A key
         //0x30 0 key
 
-        if (GetAsyncKeyState(0x53))//S
+        for (int i = 65; i <= 90; i++) {
+            if (GetAsyncKeyState(i)) {
+                VecSub[chosenH].KeyChange(i - 65);
+                change = 1;
+            }
+        }
+
+        if (GetAsyncKeyState(VK_DOWN))
         {
             change = 1;
-            if (++chosenH >= r.size()) {
+            if (++chosenV >= r.size()) {
+                chosenV = 0;
+            }
+            VecSub.clear();
+            VecSub = StringFraction(txt, chosenV + 1, 0);
+        }
+
+        if (GetAsyncKeyState(VK_UP))
+        {
+            change = 1;
+            if (--chosenV < 0) {
+                chosenV = r.size() - 1;
+            }
+            VecSub.clear();
+            VecSub = StringFraction(txt, chosenV + 1, 0);
+        }
+
+
+        if (GetAsyncKeyState(VK_RIGHT) & 0x27)
+        {
+            change = 1;
+            if (++chosenH >= VecSub.size()) {
                 chosenH = 0;
             }
         }
-        if (GetAsyncKeyState(0x57))//W
+
+        if (GetAsyncKeyState(VK_LEFT) & 0x25)
         {
             change = 1;
             if (--chosenH < 0) {
-                chosenH = r.size() - 1;
+                chosenH = VecSub.size() - 1;
             }
         }
+
         if (GetAsyncKeyState(VK_RETURN) & 0x0D)
         {
-            ProgWork = 0;
+            VecSub[chosenH].CesarNextStep();
+            change = 1;
+        }
+        if (GetAsyncKeyState(VK_MENU))
+        {
+            VecSub[chosenH].CesarPrevStep();
+            change = 1;
         }
         if (GetAsyncKeyState(VK_ESCAPE) & 0x01)
         {
