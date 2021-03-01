@@ -41,7 +41,7 @@ public:
     double MI;
     int len_of_char;
     string ch;
-    vector<string> lower, upper, mostPopular;
+    vector<string> lower, upper;
     vector<int> MostPopI;
     LangParams() {};
     LangParams(double MatchIndex, string low, string up, string most_popular_characters, string just_one_character) {
@@ -65,7 +65,14 @@ public:
             for (int j = 0; j < len_of_char; j++) {
                 tmp += most_popular_characters[i + j];
             }
-            mostPopular.push_back(tmp);
+            int index = -1;
+            for (int i = 0; i < lower.size(); i++) {
+                if (lower[i] == tmp) {
+                    index = i;
+                    break;
+                }
+            }
+            MostPopI.push_back(index);
         }
     }
 };
@@ -131,6 +138,45 @@ private:
         return res;
     }
 
+    void Encrypt() {
+        int len = lg[language].len_of_char;
+        int alpCount = lg[language].lower.size();
+        vector<string> low = lg[language].lower, up = lg[language].upper;
+        string tmp;
+        to_ret = "";
+        for (int i = 0; i < init.length() / len; i += len) {
+            tmp = "";
+            for (int j = 0; j < len; j++) {
+                tmp += init[i + j];
+            }
+            int NumInLowAlp = -1;
+            int NumInUpAlp = -1;
+            for (int j = 0; j < alpCount; j++) {
+                if (tmp == low[j] ) {
+                    NumInLowAlp = j;
+                    break;
+                }
+                if (tmp == up[j]) {
+                    NumInUpAlp = j;
+                    break;
+                }
+            }
+            if (NumInLowAlp > -1 || NumInUpAlp > -1) {
+                if (NumInLowAlp > -1) {
+                    to_ret += low[(key + NumInLowAlp) % alpCount];
+                }
+                if (NumInUpAlp > -1) {
+                    to_ret += up[(key + NumInUpAlp) % alpCount];
+                }
+            }
+            else {
+                for (int j = 0; j < len; j++) {
+                    to_ret += init[i + j];
+                }
+            }
+        }
+    }
+
 public:
     string init;
     string to_ret = "";
@@ -141,20 +187,28 @@ public:
     string MaxChar;
     vector<int> counts;
     int IofMaxChar;
-    SubString(string insert) {
+    SubString(string insert, bool light = 1) {
         init = insert;
         language = LNGDetector(init);
         /*for (int i = 0; i < this->counts.size(); i++) {
             cout << i << " " << this->counts[i]<<endl;
         }*/
-        MIndex = MatrixIndex();        
+        MIndex = MatrixIndex();
+        if (!light) {
+            CesarNextStep();
+        }
     }
 
     void CesarNextStep() {
         curPopChar++;
-        if (++curPopChar >= lg[language].mostPopular.size()) {
+        if (++curPopChar >= lg[language].MostPopI.size()) {
             curPopChar = 0;
         }
+        key = lg[language].MostPopI[curPopChar] - IofMaxChar;
+        if (key < 0) {
+            key += lg[language].lower.size();
+        }
+        Encrypt();
     }
     
 };
@@ -175,6 +229,19 @@ vector<SubString> StringFraction(string input, int count) {
     }
     return res;
 }
+
+string FractedStr(vector<SubString> VecSub) {
+    string to_ret = "";
+    for (int i = 0; i < VecSub[0].to_ret.length(); i++) {
+        for (int j = 0; j < VecSub.size(); j++) {
+            if (VecSub[j].to_ret.length() > i) {
+                to_ret += VecSub[j].to_ret[i];
+            }
+        }
+    }
+    return to_ret;
+}
+
 //-----------------------------------------------------------------
 //Work with strings end
 
@@ -212,7 +279,7 @@ int main()
     string txt = "JGRMQOYGHMVBJWRWQFPWHGFFDQGFPFZRKBEEBJIZQQOCIBZKLFAFGQVFZFWWE";
     vector<double> r = FindAllIndex(txt);
     lang cur = LNGDetector(txt);
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    vector<SubString> Sub;
     // you can loop k higher to see more color choices
     //for (int k = 1; k < 255; k++)
     //{
@@ -221,12 +288,15 @@ int main()
     //    cout << k << " I want to be nice today!" << endl;
     //}
     bool ProgWork = true;
-    int chosen = 0;
+    int chosenH = 0;
     bool change = 1;
+    /*vector<SubString> VecSub = StringFraction(txt,chosenH + 1);
+    string decoded = FractedStr(Sub);*/
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     while (ProgWork) {
         if (change) {
             system("cls");
-
+            //cout << decoded << endl;
             for (int i = 0; i < r.size(); i++) {
                 SetConsoleTextAttribute(hConsole, 14);
                 if (r[i] > lg[cur].MI - 0.006 && r[i] < lg[cur].MI + 0.006) {
@@ -241,7 +311,7 @@ int main()
                 if (r[i] < lg[cur].MI - 0.01 || r[i] > lg[cur].MI + 0.01) {
                     SetConsoleTextAttribute(hConsole, 12);
                 }
-                if (chosen == i) {
+                if (chosenH == i) {
                     cout << ">";
                 }
                 else {
@@ -252,21 +322,29 @@ int main()
             SetConsoleTextAttribute(hConsole, 7);
             change = 0;
         }
-        if (GetKeyState('S') & 0x8000)
+
+        //0x41 A key
+        //0x30 0 key
+
+        if (GetAsyncKeyState(0x53))//S
         {
             change = 1;
-            if (++chosen >= r.size()) {
-                chosen = 0;
+            if (++chosenH >= r.size()) {
+                chosenH = 0;
             }
         }
-        if (GetKeyState('W') & 0x8000)
+        if (GetAsyncKeyState(0x57))//W
         {
             change = 1;
-            if (--chosen < 0) {
-                chosen = r.size()-1;
+            if (--chosenH < 0) {
+                chosenH = r.size() - 1;
             }
         }
-        if (GetAsyncKeyState(VK_RETURN) & 0x0D) 
+        if (GetAsyncKeyState(VK_RETURN) & 0x0D)
+        {
+            ProgWork = 0;
+        }
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x01)
         {
             ProgWork = 0;
         }
