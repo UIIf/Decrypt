@@ -128,13 +128,13 @@ private:
                 IofMaxChar = i;
                 MaxChar = low[i];
             }
-            res += this->counts[this->counts.size()-1] * (this->counts[this->counts.size() - 1] - 1);
+            res += this->counts[this->counts.size()-1] * (this->counts[this->counts.size() - 1]);
         }
         //for (int i = 0; i < this->counts.size(); i++) {
         //    res += this->counts[i];
         //}
         //cout << "RES " << res << endl;
-        res /= double(this->init.length() * (this->init.length() - 1));
+        res /= double(this->init.length() * (this->init.length() ));
         return res;
     }
 
@@ -294,7 +294,7 @@ vector<double> FindAllIndex(string crypted) {
 
 int main()
 {
-    string txt = "wcdsvqdzgqilovccildiao";
+    string txt = "dlcxivdhyifscmlowqliekrrytgmoszrmdhpkqydmakpjifsdfgdfwlmrkwymomptmderyiqripoelnenerloxmpwrbeulipbmccxfovckxmxirsqcgiymxskpjilynxfbicmyqdskovqsrrri qrsnkxmxgcdlydqscxfkzclicxepogmbhzixforchxuoiidlgxkqgipoitorzoxrovuyvbrebctpoebkfmexuswfsregijvjybqsxgjoelnesxxgotydacbildpguijixmliayqcwmjvmmxegbiqlyrlyqsrccwukwzoxrovrrelsx fkhzoilpspiiybw";
     vector<double> r = FindAllIndex(txt);
     lang cur = LNGDetector(txt);
     // you can loop k higher to see more color choices
