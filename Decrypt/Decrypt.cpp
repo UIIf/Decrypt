@@ -1,8 +1,34 @@
 ﻿#include <iostream>
 #include <string>
 #include <vector>
+#include <Windows.h>
 
 using namespace std;
+
+//Junk yard of functions
+//-----------------------------------------------------------------
+
+//double MatchIndex(string cryptedText, lang alp = eng) {
+//    long int sum = 0;
+//    int len = lg[alp].len_of_char;
+//    vector<string> low = lg[alp].lower;
+//    vector<string> up = lg[alp].upper;
+//    for (char i = 0; i < low.size() / len; i++) {
+//        int count = subs_str_search(cryptedText, low[i]) + subs_str_search(cryptedText, up[i]);
+//        sum += (count * (count - 1));
+//    }
+//    cout << sum / double(cryptedText.length() / len * (cryptedText.length() - 1) / len) << endl;
+//    return sum / double(cryptedText.length() / len * (cryptedText.length() - 1) / len);
+//}
+
+//-----------------------------------------------------------------
+//Junk yard of functions
+
+const int max_key = 10;
+const int max_lang = 2;
+
+//Work with languages start
+//-----------------------------------------------------------------
 
 enum lang {
     error,
@@ -10,15 +36,13 @@ enum lang {
     rus
 };
 
-const int max_key = 15;
-const int max_lang = 2;
-
 class LangParams {
 public:
     double MI;
     int len_of_char;
     string ch;
     vector<string> lower, upper, mostPopular;
+    vector<int> MostPopI;
     LangParams() {};
     LangParams(double MatchIndex, string low, string up, string most_popular_characters, string just_one_character) {
         MI = MatchIndex;
@@ -48,6 +72,11 @@ public:
 
 LangParams lg[] = { LangParams(), LangParams(0.065, "abcdefghigklmnopqrstuvwxyz", "ABCDEFGHIGKLMNOPQRSTUVWXYZ", "eo","e"), LangParams(0.07, "абвгдежзийклмнопрстуфхцчшщъыьэюя","АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ","ао", "а") };
 
+//-----------------------------------------------------------------
+//Work with languages end
+
+//Work with strings start
+//-----------------------------------------------------------------
 
 int subs_str_search(string src, string sub) {
     int start = 0;
@@ -80,22 +109,23 @@ lang LNGDetector(string substr) {
 class SubString {
 private:
 
-    void Count() {
-        vector<string> low = lg[language].lower;
-        vector<string> up = lg[language].upper;
-        for (int i = 0; i < low.size(); i++) {
-            int count = subs_str_search(this->init, low[i]) + subs_str_search(this->init, up[i]);
-            
-            count = count * (count - 1);
-            this->counts.push_back(count);
-        }
-    }
-
     double MatrixIndex() {
         double res = 0;
-        for (int i = 0; i < this->counts.size(); i++) {
-            res += this->counts[i];
+        vector<string> low = lg[language].lower;
+        vector<string> up = lg[language].upper;
+        IofMaxChar = 0;
+        MaxChar = low[0];
+        for (int i = 0; i < low.size(); i++) {
+            this->counts.push_back(subs_str_search(this->init, low[i]) + subs_str_search(this->init, up[i]));
+            if (counts[IofMaxChar] > counts[i]) {
+                IofMaxChar = i;
+                MaxChar = low[i];
+            }
+            res += this->counts[this->counts.size()-1] * (this->counts[this->counts.size() - 1] - 1);
         }
+        //for (int i = 0; i < this->counts.size(); i++) {
+        //    res += this->counts[i];
+        //}
         //cout << "RES " << res << endl;
         res /= double(this->init.length() * (this->init.length() - 1));
         return res;
@@ -105,38 +135,29 @@ public:
     string init;
     string to_ret = "";
     int key = 0;
+    int curPopChar = -1;
     double MIndex;
     lang language;
+    string MaxChar;
     vector<int> counts;
+    int IofMaxChar;
     SubString(string insert) {
-        this->init = insert;
-        this->language = LNGDetector(init);
-        Count();
+        init = insert;
+        language = LNGDetector(init);
         /*for (int i = 0; i < this->counts.size(); i++) {
             cout << i << " " << this->counts[i]<<endl;
         }*/
-        MIndex = MatrixIndex();
+        MIndex = MatrixIndex();        
     }
 
+    void CesarNextStep() {
+        curPopChar++;
+        if (++curPopChar >= lg[language].mostPopular.size()) {
+            curPopChar = 0;
+        }
+    }
     
 };
-
-string TTL(string code) {
-    return "";
-}
-
-double MatchIndex(string cryptedText, lang alp = eng) {
-    long int sum = 0;
-    int len = lg[alp].len_of_char;
-    vector<string> low = lg[alp].lower;
-    vector<string> up = lg[alp].upper;
-    for (char i = 0; i < low.size() / len; i++) {
-        int count = subs_str_search(cryptedText, low[i]) + subs_str_search(cryptedText, up[i]);
-        sum += (count * (count - 1));
-    }
-    cout << sum / double(cryptedText.length() / len * (cryptedText.length() - 1) / len) << endl;
-    return sum / double(cryptedText.length() / len * (cryptedText.length() - 1) / len);
-}
 
 vector<SubString> StringFraction(string input, int count) {
     string tmp;
@@ -154,6 +175,12 @@ vector<SubString> StringFraction(string input, int count) {
     }
     return res;
 }
+//-----------------------------------------------------------------
+//Work with strings end
+
+
+//Finding Key length start
+//-----------------------------------------------------------------
 
 vector<double> FindAllIndex(string crypted) {
     lang cur = LNGDetector(crypted);
@@ -168,7 +195,7 @@ vector<double> FindAllIndex(string crypted) {
                 MidleIndex += tmp[j].MIndex;
             }
             MidleIndex /= i;
-            cout << i << " " << tmp[0].init.length() << endl;
+            //cout << i << " " << tmp[0].init.length() << endl;
             //res.push_back(tmp[0].MIndex);
             res.push_back(MidleIndex);
         }
@@ -176,17 +203,81 @@ vector<double> FindAllIndex(string crypted) {
     return res;
 }
 
-vector<int> FindKeyLen(vector<double> vals) {
-    vector<int> res;
+//-----------------------------------------------------------------
+//Finding Key length end
 
-    return res;
-}
 
 int main()
 {
     string txt = "JGRMQOYGHMVBJWRWQFPWHGFFDQGFPFZRKBEEBJIZQQOCIBZKLFAFGQVFZFWWE";
     vector<double> r = FindAllIndex(txt);
-    for (int i = 0; i < r.size(); i++) {
-        cout << "Key len = " << i + 1 << " Match index = " << r[i] << endl;
+    lang cur = LNGDetector(txt);
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    // you can loop k higher to see more color choices
+    //for (int k = 1; k < 255; k++)
+    //{
+    //    // pick the colorattribute k you want
+    //    SetConsoleTextAttribute(hConsole, k);
+    //    cout << k << " I want to be nice today!" << endl;
+    //}
+    bool ProgWork = true;
+    int chosen = 0;
+    bool change = 1;
+    while (ProgWork) {
+        if (change) {
+            system("cls");
+
+            for (int i = 0; i < r.size(); i++) {
+                SetConsoleTextAttribute(hConsole, 14);
+                if (r[i] > lg[cur].MI - 0.006 && r[i] < lg[cur].MI + 0.006) {
+                    SetConsoleTextAttribute(hConsole, 2);
+                }
+                if (r[i] > lg[cur].MI - 0.003 && r[i] < lg[cur].MI + 0.003) {
+                    SetConsoleTextAttribute(hConsole, 10);
+                }
+                if (r[i] < lg[cur].MI - 0.02 || r[i] > lg[cur].MI + 0.02) {
+                    SetConsoleTextAttribute(hConsole, 4);
+                }
+                if (r[i] < lg[cur].MI - 0.01 || r[i] > lg[cur].MI + 0.01) {
+                    SetConsoleTextAttribute(hConsole, 12);
+                }
+                if (chosen == i) {
+                    cout << ">";
+                }
+                else {
+                    cout << " ";
+                }
+                cout << "Key len = " << i + 1 << " Match index = " << r[i] << endl;
+            }
+            SetConsoleTextAttribute(hConsole, 7);
+            change = 0;
+        }
+        if (GetKeyState('S') & 0x8000)
+        {
+            change = 1;
+            if (++chosen >= r.size()) {
+                chosen = 0;
+            }
+        }
+        if (GetKeyState('W') & 0x8000)
+        {
+            change = 1;
+            if (--chosen < 0) {
+                chosen = r.size()-1;
+            }
+        }
+        if (GetAsyncKeyState(VK_RETURN) & 0x0D) 
+        {
+            ProgWork = 0;
+        }
+        Sleep(200);
+
     }
+    // you can loop k higher to see more color choices
+    //for (int k = 1; k < 255; k++)
+    //{
+    //    // pick the colorattribute k you want
+    //    SetConsoleTextAttribute(hConsole, k);
+    //    cout << k << " I want to be nice today!" << endl;
+    //}
 }
