@@ -362,6 +362,9 @@ int main()
             if (GetAsyncKeyState(i)) {
                 VecSub[chosenH].KeyChange(i - 65);
                 change = 1;
+                if (++chosenH >= VecSub.size()) {
+                    chosenH = 0;
+                }
             }
         }
 
