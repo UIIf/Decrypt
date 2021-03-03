@@ -292,8 +292,8 @@ vector<double> FindAllIndex(string crypted) {
             }
             MidleIndex /= i;
             //cout << i << " " << tmp[0].init.length() << endl;
-            res.push_back(tmp[0].MIndex);
-            //res.push_back(MidleIndex);
+            //res.push_back(tmp[0].MIndex);
+            res.push_back(MidleIndex);
         }
     }
     return res;
@@ -305,7 +305,7 @@ vector<double> FindAllIndex(string crypted) {
 
 int main()
 {
-    string txt = "wicdqwpekspwdlcbiybidszcyjscqwzeporrcqwopbovzbsrripwczkfwcmqdipkrbwidsvqdqcoxkiqswelnhynnyxiyxhksgfkijwckeqcxnmiwpoebsrekrbwcbkhcxnmiwnvewsremlccwusxfwczbsrripuilwckeqgcwjsqyxhpkxfovrkpjclcreqvslqvcnlysvyxhzskzbsuxiwowqrifkwyfipitjoeqkrrcqgviyxhycsddzmsgcwckyxfovgczcbcisrbkrberbovqdelnmlqackvcbiyvjpsilnwqrigcefyyqoagpiycwfolycxfbicmlgvhporqrigcejgewcfsccybssxhrrifyyqowfoxyuiqmeposdwczkfwcmqdipwieglmswmxpwdlpoikyrrrwmvhkiwgcxcbmqfipiwkkpjkrbpylxcqriqviczwckxqkrbcskoxgwiqmvgowuoejvlcvtmevkyxfovyxhjoxfovfkzckvccxgxxfoitorgxkrrilclcewskpjivckhqkfmyombnscxukxariqdzkijydlcbmqkhmmxmblcswrkpjkrbrelnwmwifolycwfyvrnepulysvyxhebewoccclcswyfipilybhuyvisrewelrigcvydlcbwrbmadagdlscfsdejgewcjysvkiijniplvmdlcbocxmqdlgbxcoryxhfomqfipigjozcblcsweysbkxkkxfcelnejgewclcvtqwiusxfsxzogyewcsgyxlybhjiylnipcxyxhyvprriqowswwyxhnbszvikcocxlycvcnlysvyxhzbsuxiwowkirywigcnccwgmegkqcvitorgretopmxkbkviregbelnfpyalocccmywrmdeqmpcfipkwkifpyxfovrrssqlgdvwdsbyqwliqdercgfysjdsmsekpslnsdnelmmlqssbhyxggxkqdybssuyrrrizowrnelmmlqwrehgygmwtcdmrsslveqdqmxxfsekfipitpyybyjgdmyvwmvmioxmrijzqwwsrripgmrrqwvmrdpccmqdipfipiqsmlmevdkqgvcgczcbcsxmrohuopmfickgfyxfovyxhyvayiwrbcrywnorbwspoxgwirykcdlcb";
+    string txt = "JGRMQOYGHMVBJWRWQFPWHGFFDQGFPFZRKBEEBJIZQQOCIBZKLFAFGQVFZFWWEOGWOPFGFHWOLPHLRLOLFDMFGQWBLWBWQOLKFWBYLBLYLFSFLJGRMQBOLWJVFPFWQVHQWFFPQOQVFPQOCFPOGFWFJIGFQVHLHLROQVFGWJVFPFOLFHGQVQVFILEOGQILHQFQGIQVVOSFAFGBWQVHQWIJVWJVFPFWHGFIWIHZZRQGBABHZQOCGFHX";
     vector<double> r = FindAllIndex(txt);
     lang cur = LNGDetector(txt);
     int chosenV = 0;
@@ -332,6 +332,10 @@ int main()
         if (change) {
             system("cls");
             decoded = FractedStr(VecSub);
+            /*for (int i = 0; i < VecSub.size(); i++) {
+                cout << VecSub[i].to_ret << endl;
+            }
+            cout << endl;*/
             cout << decoded << endl<<endl<<endl<<"KeyWord:\n";
             for (int i = 0; i < VecSub.size(); i++) {
                 cout << lg[cur].lower[VecSub[i].key];
@@ -367,7 +371,7 @@ int main()
             }
             SetConsoleTextAttribute(hConsole, 7);
             
-            cout << endl << endl << endl <<VecSub[0].IofMaxChar<< "Up/Down - Shift/Ctrl\nKey Letters - Arrows\nNext auto - Enter\nPrev auto - alt\nClose - Esc";
+            cout << endl << endl << endl<< "Up/Down - Shift/Ctrl\nKey Letters - Arrows\nNext auto - Enter\nPrev auto - alt\nClose - Esc";
 
             change = 0;
         }
