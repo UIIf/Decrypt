@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <Windows.h>
+#include <cmath>
 
 using namespace std;
 
@@ -304,9 +305,16 @@ vector<double> FindAllIndex(string crypted) {
 
 int main()
 {
-    string txt = "JGRMQOYGHMVBJWRWQFPWHGFFDQGFPFZRKBEEBJIZQQOCIBZKLFAFGQVFZFWWEOGWOPFGFHWOLPHLRLOLFDMFGQWBLWBWQOLKFWBYLBLYLFSFLJGRMQBOLWJVFPFWQVHQWFFPQOQVFPQOCFPOGFWFJIGFQVHLHLROQVFGWJVFPFOLFHGQVQVFILEOGQILHQFQGIQVVOSFAFGBWQVHQWIJVWJVFPFWHGFIWIHZZRQGBABHZQOCGFHX";
+    string txt = "wicdqwpekspwdlcbiybidszcyjscqwzeporrcqwopbovzbsrripwczkfwcmqdipkrbwidsvqdqcoxkiqswelnhynnyxiyxhksgfkijwckeqcxnmiwpoebsrekrbwcbkhcxnmiwnvewsremlccwusxfwczbsrripuilwckeqgcwjsqyxhpkxfovrkpjclcreqvslqvcnlysvyxhzskzbsuxiwowqrifkwyfipitjoeqkrrcqgviyxhycsddzmsgcwckyxfovgczcbcisrbkrberbovqdelnmlqackvcbiyvjpsilnwqrigcefyyqoagpiycwfolycxfbicmlgvhporqrigcejgewcfsccybssxhrrifyyqowfoxyuiqmeposdwczkfwcmqdipwieglmswmxpwdlpoikyrrrwmvhkiwgcxcbmqfipiwkkpjkrbpylxcqriqviczwckxqkrbcskoxgwiqmvgowuoejvlcvtmevkyxfovyxhjoxfovfkzckvccxgxxfoitorgxkrrilclcewskpjivckhqkfmyombnscxukxariqdzkijydlcbmqkhmmxmblcswrkpjkrbrelnwmwifolycwfyvrnepulysvyxhebewoccclcswyfipilybhuyvisrewelrigcvydlcbwrbmadagdlscfsdejgewcjysvkiijniplvmdlcbocxmqdlgbxcoryxhfomqfipigjozcblcsweysbkxkkxfcelnejgewclcvtqwiusxfsxzogyewcsgyxlybhjiylnipcxyxhyvprriqowswwyxhnbszvikcocxlycvcnlysvyxhzbsuxiwowkirywigcnccwgmegkqcvitorgretopmxkbkviregbelnfpyalocccmywrmdeqmpcfipkwkifpyxfovrrssqlgdvwdsbyqwliqdercgfysjdsmsekpslnsdnelmmlqssbhyxggxkqdybssuyrrrizowrnelmmlqwrehgygmwtcdmrsslveqdqmxxfsekfipitpyybyjgdmyvwmvmioxmrijzqwwsrripgmrrqwvmrdpccmqdipfipiqsmlmevdkqgvcgczcbcsxmrohuopmfickgfyxfovyxhyvayiwrbcrywnorbwspoxgwirykcdlcb";
     vector<double> r = FindAllIndex(txt);
     lang cur = LNGDetector(txt);
+    int chosenV = 0;
+    for (int i = 1; i < r.size(); i++) {
+        if (abs(lg[cur].MI - r[i]) < abs(lg[cur].MI - r[chosenV])) {
+            chosenV = i;
+        }
+    }
+
     // you can loop k higher to see more color choices
     //for (int k = 1; k < 255; k++)
     //{
@@ -315,7 +323,6 @@ int main()
     //    cout << k << " I want to be nice today!" << endl;
     //}
     bool ProgWork = true;
-    int chosenV = 0;
     int chosenH = 0;
     bool change = 1;
     vector<SubString> VecSub = StringFraction(txt,chosenV + 1,0);
@@ -398,6 +405,9 @@ int main()
             }
             VecSub.clear();
             VecSub = StringFraction(txt, chosenV + 1, 0);
+            if (chosenH > chosenV) {
+                chosenH = chosenV;
+            }
         }
 
 
