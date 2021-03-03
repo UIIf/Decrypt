@@ -128,13 +128,13 @@ private:
                 IofMaxChar = i;
                 MaxChar = low[i];
             }
-            res += this->counts[this->counts.size()-1] * (this->counts[this->counts.size() - 1]);
+            res += this->counts[this->counts.size()-1] * (this->counts[this->counts.size() - 1] - 1);
         }
         //for (int i = 0; i < this->counts.size(); i++) {
         //    res += this->counts[i];
         //}
         //cout << "RES " << res << endl;
-        res /= double(this->init.length() * (this->init.length() ));
+        res /= double(this->init.length() * (this->init.length() - 1));
         return res;
     }
 
@@ -217,6 +217,16 @@ public:
         }
         Encrypt();
     }
+    void KeyP() {
+        if (++key >= lg[language].lower.size()) {
+            key = 0;
+        }
+    }
+    void KeyM() {
+        if (--key < 0) {
+            key = lg[language].lower.size()- 1;
+        }
+    }
     void CesarPrevStep() {
         if (--curPopChar < 0) {
             curPopChar = lg[language].MostPopI.size()-1;
@@ -281,8 +291,8 @@ vector<double> FindAllIndex(string crypted) {
             }
             MidleIndex /= i;
             //cout << i << " " << tmp[0].init.length() << endl;
-            //res.push_back(tmp[0].MIndex);
-            res.push_back(MidleIndex);
+            res.push_back(tmp[0].MIndex);
+            //res.push_back(MidleIndex);
         }
     }
     return res;
@@ -294,7 +304,7 @@ vector<double> FindAllIndex(string crypted) {
 
 int main()
 {
-    string txt = "efefefefefefe";
+    string txt = "JGRMQOYGHMVBJWRWQFPWHGFFDQGFPFZRKBEEBJIZQQOCIBZKLFAFGQVFZFWWEOGWOPFGFHWOLPHLRLOLFDMFGQWBLWBWQOLKFWBYLBLYLFSFLJGRMQBOLWJVFPFWQVHQWFFPQOQVFPQOCFPOGFWFJIGFQVHLHLROQVFGWJVFPFOLFHGQVQVFILEOGQILHQFQGIQVVOSFAFGBWQVHQWIJVWJVFPFWHGFIWIHZZRQGBABHZQOCGFHX";
     vector<double> r = FindAllIndex(txt);
     lang cur = LNGDetector(txt);
     // you can loop k higher to see more color choices
@@ -350,7 +360,7 @@ int main()
             }
             SetConsoleTextAttribute(hConsole, 7);
             
-            cout << endl << endl << endl <<VecSub[0].IofMaxChar<< "Directions - Arrows\nNext auto - Enter\nPrev auto - alt\nClose - Esc";
+            cout << endl << endl << endl <<VecSub[0].IofMaxChar<< "Up/Down - Shift/Ctrl\nKey Letters - Arrows\nNext auto - Enter\nPrev auto - alt\nClose - Esc";
 
             change = 0;
         }
@@ -358,17 +368,19 @@ int main()
         //0x41 A key
         //0x30 0 key
 
-        for (int i = 65; i <= 90; i++) {
-            if (GetAsyncKeyState(i)) {
-                VecSub[chosenH].KeyChange(i - 65);
-                change = 1;
-                if (++chosenH >= VecSub.size()) {
-                    chosenH = 0;
+        if (cur = eng) {
+            for (int i = 65; i <= 90; i++) {
+                if (GetAsyncKeyState(i)) {
+                    VecSub[chosenH].KeyChange(i - 65);
+                    change = 1;
+                    if (++chosenH >= VecSub.size()) {
+                        chosenH = 0;
+                    }
                 }
             }
         }
 
-        if (GetAsyncKeyState(VK_DOWN))
+        if (GetAsyncKeyState(VK_CONTROL))
         {
             change = 1;
             if (++chosenV >= r.size()) {
@@ -378,7 +390,7 @@ int main()
             VecSub = StringFraction(txt, chosenV + 1, 0);
         }
 
-        if (GetAsyncKeyState(VK_UP))
+        if (GetAsyncKeyState(VK_SHIFT))
         {
             change = 1;
             if (--chosenV < 0) {
@@ -403,6 +415,19 @@ int main()
             if (--chosenH < 0) {
                 chosenH = VecSub.size() - 1;
             }
+        }
+
+        if (GetAsyncKeyState(VK_UP) & 0x27)
+        {
+            change = 1;
+            VecSub[chosenH].KeyP();
+            //cout << VecSub[chosenH].key << " " << lg[cur].lower.size()<<endl;
+        }
+
+        if (GetAsyncKeyState(VK_DOWN) & 0x25)
+        {
+            change = 1;
+            VecSub[chosenH].KeyM();
         }
 
         if (GetAsyncKeyState(VK_RETURN) & 0x0D)
