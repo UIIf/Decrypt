@@ -124,7 +124,7 @@ private:
         MaxChar = low[0];
         for (int i = 0; i < low.size(); i++) {
             this->counts.push_back(subs_str_search(this->init, low[i]) + subs_str_search(this->init, up[i]));
-            if (counts[IofMaxChar] > counts[i]) {
+            if (counts[IofMaxChar] < counts[i]) {
                 IofMaxChar = i;
                 MaxChar = low[i];
             }
@@ -211,7 +211,7 @@ public:
         if (++curPopChar >= lg[language].MostPopI.size()) {
             curPopChar = 0;
         }
-        key = lg[language].MostPopI[curPopChar] - IofMaxChar;
+        key = (IofMaxChar - lg[language].MostPopI[curPopChar] );
         if (key < 0) {
             key += lg[language].lower.size();
         }
@@ -221,7 +221,7 @@ public:
         if (--curPopChar < 0) {
             curPopChar = lg[language].MostPopI.size()-1;
         }
-        key = lg[language].MostPopI[curPopChar] - IofMaxChar;
+        key = (IofMaxChar - lg[language].MostPopI[curPopChar]);
         if (key < 0) {
             key += lg[language].lower.size();
         }
@@ -294,7 +294,7 @@ vector<double> FindAllIndex(string crypted) {
 
 int main()
 {
-    string txt = "dlcxivdhyifscmlowqliekrrytgmoszrmdhpkqydmakpjifsdfgdfwlmrkwymomptmderyiqripoelnenerloxmpwrbeulipbmccxfovckxmxirsqcgiymxskpjilynxfbicmyqdskovqsrrri qrsnkxmxgcdlydqscxfkzclicxepogmbhzixforchxuoiidlgxkqgipoitorzoxrovuyvbrebctpoebkfmexuswfsregijvjybqsxgjoelnesxxgotydacbildpguijixmliayqcwmjvmmxegbiqlyrlyqsrccwukwzoxrovrrelsx fkhzoilpspiiybw";
+    string txt = "efefefefefefe";
     vector<double> r = FindAllIndex(txt);
     lang cur = LNGDetector(txt);
     // you can loop k higher to see more color choices
@@ -350,7 +350,7 @@ int main()
             }
             SetConsoleTextAttribute(hConsole, 7);
             
-            cout << endl << endl << endl << "Directions - Arrows\nNext auto - Enter\nPrev auto - alt\nClose - Esc";
+            cout << endl << endl << endl <<VecSub[0].IofMaxChar<< "Directions - Arrows\nNext auto - Enter\nPrev auto - alt\nClose - Esc";
 
             change = 0;
         }
